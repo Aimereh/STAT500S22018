@@ -1,0 +1,207 @@
+---
+title: |
+    | STAT500 S2 2018 
+    | Applied Statistics
+    | Assignment
+author: |
+  | Aimereh
+date: 
+output:
+  pdf_document: 
+    number_sections: yes
+    toc: no
+    keep_tex: yes
+  html_document:
+    df_print: paged
+  tufte::tufte_handout: default
+documentclass: article
+classoption: a4paper
+fontsize: 11pt
+header-includes:
+- \renewcommand{\thesection}{Question \arabic{section}}
+- \renewcommand{\thesubsection}{\alph{subsection}.}
+- \usepackage{fullpage}
+- \usepackage{xcolor}
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loadPackages, message=FALSE, results="hide", echo=FALSE}
+requiredPackages <- c("knitr",  "tidyverse", "readr", "xtable")
+packages_to_install <- requiredPackages[
+                        !(requiredPackages %in% installed.packages()[,1])]
+
+if(length(packages_to_install)>0 ) install.packages(packages_to_install, dependencies=TRUE)
+sapply(requiredPackages, library, character.only=TRUE)
+```
+
+```{r loadlibraries, message=FALSE, results="hide", echo=FALSE}
+library(tidyverse)
+library(MASS)
+library(readr)
+```
+\newpage
+
+*\textcolor{red}{Violet coloured text are orignal answers.}*
+# 
+You will recall the standard Gaussian distribution from lectures and the R functions rnorm() etc.
+
+## What is the probability that a standard Gaussian random variable exceeds 1.3?
+```{r onea}
+# 1-pnorm(1.3)
+pnorm(1.3, mean = 0, sd = 1, lower.tail = FALSE, log.p = FALSE)
+```
+
+## Verify your answer using random sampling.
+```{r oneb}
+table(rnorm(1e6) > 1.3)
+```
+
+## What value is exceeded 15% of the time when sampling from a standard Gaussian distribution?
+```{r onec}
+qnorm(0.85)
+1-pnorm(1.036433)
+```
+
+## [hard] You will recall dnorm(), qnorm(), pnorm(), and rnorm() from lectures. You will also recall the Cauchy distribution, which has density function dcauchy(). Answer parts (a), (b) and (c) above but using the Cauchy distribution instead of the Gaussian.
+
+```{r onedA}
+# 1-pcauchy(1.3)
+pcauchy(1.3, location = 0, scale = 1, lower.tail = FALSE, log.p = FALSE)
+```
+
+```{r onedB}
+table(rcauchy(1e6)>1.3)
+```
+
+```{r onedC}
+qcauchy(0.85)
+1-pcauchy(1.962611)
+```
+
+# 
+A particular AUT statistician catches the bus to work every weekday (five days). He is interested in whether or not the bus is late. The Bus being late is thus a Bernoulli trial; consider a late bus to be a “success”. The statistician has determined that 10% of buses are late on average.
+
+## If each bus’s status is independent of the others, what distribution specifies the total number of late buses in a given week?
+
+* Binormal distribution using rbinom() to represent the status of each bus is independent.
+* The value **5** will simulate every weekday (five days).
+* The value **1** will simulate each bus per day
+* The value **0.10** will give the probability of success.
+* Bernoulli trials amounts to an experiment with two possible outcomes of *"success"* and *"failure"*.
+  + The value **0** will represents *"not late"*
+  + The value **1** will represents *"late"*
+  
+```{r twoa}
+# Set the seed of R‘s random number generator
+# Useful for recreating simulations or random objects to be reproduced
+set.seed(2018)
+rbinom(5,1,0.10)
+```
+
+## Using dbinom() or otherwise, what is the probability that exactly two buses are late in a given week?
+```{r twob}
+# (factorial(5)/(factorial(2)*factorial(3)))* (0.1^2 * (1-0.1)^(5-2))
+dbinom(2,5,0.1)
+```
+
+## A new company takes over the running of the bus route. It is suspected that this new company is less punctual (ie, more late buses) than the old one. State a sensible null hypthoesis for considering the new company's performance.
+$H_0 =$ Buses of the new company that takes over the running of the bus route are less punctual.
+
+*\textcolor{violet}{The relationship between the new bus company and the old bus company shows no reliable supporting 
+evidences of the two company performances in terms that the new bus company is less punctual than the old 
+bus company}*
+
+## Is a one-sideed or two-sided test appropriate? Justify your answers.
+A two-sided test is appropriate to determine if there is a difference comparing the new company performance against the old company performance in the punctuality of buses arrival. The two-sided test uses both positive or negative differences.
+
+*\textcolor{violet}{Both method of test is appropriate. Two-sided test would be suitable because it would compare two variables, in this case comparing the new bus company and the old bus company punctuality in arriving on time. A one-sided test will only be applicable if the aim is to see the improvement on punctuality so therefore it would not measure the effectiveness relationship between a new bus company against an old bus company punctuality.}*
+
+## State the precise definition of p-value; and calculate the p-value for the observation that three buses are late. Is this significant?
+Definition: **The p value is the probability, if the null hypothesis is true, of observing data or an observation more 
+extreme.**
+
+```{r twoe}
+binom.test(3, 5, 0.1, alternative="two.sided") 
+```
+
+
+# 
+A zoologist in Auckland studies kiwi behavior and catches kiwi in two locations, A and B. He is interested in the weights of kiwi birds in the two locations; he weighs the kiwi and records their weight before releasing them. The dataset is as follows:
+
+* kiwi_A <- c(1.10, 1.50, 1.10, 1.25, 1.25, 1.34, 1.53, 1.82, 1.30)
+* kiwi_B <- c(1.11, 1.25, 1.02, 1.12, 1.00, 0.94, 1.18, 1.02, 1.66)
+
+The scientist does not know which of the sites is likely to have heavier kiwi.
+
+## State a sensible null hypothesis.
+$H_0 =$ The weight of kiwi from site A and site B are different.
+
+*\textcolor{violet}{The weights between Kiwis at location A against Kiwis at location B have no relations.}*
+
+## Is a one-sided test or a two-sided test needed? Why?
+A two-sided test is appropriate to compare the weights of the Kiwis at site A wither they are heavier or lighter than the Kiwis at site B since the scientist does not know which site will likely have the heavier kiwis.
+
+## Perform a t-test on the dataset and interpret.
+```{r threec}
+kiwi_A <- c(1.10, 1.50, 1.10, 1.25, 1.25, 1.34, 1.53, 1.82, 1.30)
+kiwi_B <- c(1.11, 1.25, 1.02, 1.12, 1.00, 0.94, 1.18, 1.02, 1.66)
+
+t.test(kiwi_A, kiwi_B)
+```
+
+# 
+A farmer grows trees for their wood and measures the girth of 30 trees in his orchard. His data is as follows:
+
+* girth <-c(21.1, 21.8, 22.4, 26.7, 27.2, 27.4, 27.9, 27.9, 28.2, 28.4, 28.7, 29, 29, 29.7, 30.5, 32.8, 32.8, 33.8, 34.8, 35.1, 35.6, 36.1, 36.8, 40.6, 41.4, 43.9, 44.5, 45.5, 45.7, 45.7, 52.3)
+* volume <- c(0.38, 0.38, 0.38, 0.61, 0.7, 0.73, 0.58, 0.67, 0.84, 0.74, 0.9, 0.78, 0.79, 0.79, 0.71, 0.82, 1.25, 1.01, 0.95, 0.92, 1.28, 1.17, 1.34, 1.42, 1.58, 2.05, 2.06, 2.16, 1.91, 1.89, 2.85)
+
+Variable “volume” represents the volume of the wood in a tree, measured in cubic meters, and “girth” represents the circumference of the tree’s trunk at chest height, measured in cm. The farmer wants to predict the volume of wood in a tree as a function of its girth
+
+## Using R idiom such as lm(x~y) or summary(lm(x~y)), perform a linear regression on this dataset.
+```{r foura}
+girth <-c(21.1, 21.8, 22.4, 26.7, 27.2, 
+          27.4, 27.9, 27.9, 28.2, 28.4,
+          28.7, 29, 29, 29.7, 30.5, 32.8, 
+          32.8, 33.8, 34.8, 35.1, 35.6, 36.1, 
+          36.8, 40.6, 41.4, 43.9, 44.5, 45.5, 
+          45.7, 45.7, 52.3)
+
+volume <- c(0.38, 0.38, 0.38, 0.61, 0.7, 
+            0.73, 0.58, 0.67, 0.84, 0.74, 
+            0.9, 0.78, 0.79, 0.79, 0.71, 
+            0.82, 1.25, 1.01, 0.95, 0.92, 
+            1.28, 1.17, 1.34, 1.42, 1.58, 
+            2.05, 2.06, 2.16, 1.91, 1.89, 
+            2.85)
+
+plot(girth~volume, main="Tree Wood Orchard")
+wood.lm = lm(girth~volume)
+abline(wood.lm, col="red")
+summary(wood.lm)
+```
+
+## State a sensible null hypothesis for this situation, and say whether you reject it and why?
+$H_0 =$ The girth of the tree (circumference of the tree’s trunk) does not influences the volume of tree wood (cubic meters).
+
+The p-value is less than 0.05 therefore we rejected the null hypothesis as there is a strong relationship between girth and volume.
+
+*\textcolor{violet}{Unable to identify a relationship between girth and volume. I reject this hypothesis because it stated that the girth represents the circumference of the tree truck. The mathematical equation to find the volume of anything suggests that the bigger the circumference is and the higher the height is the volume increases.}*
+
+## Interpret coefficient of girth in the model.
+The intercept value is **19.5036** which represent the average girth of a tree with a volume value of **0.6** shown by the summary above.
+
+## [hard] Interpret the intercept in the model. Does this interpretation make sense? If there is a problem with this interpretation, suggest a way to improve the model to remove this problem.
+There is insufficient amount of data available to intercept accurate outcomes.
+
+```{=tex}
+\newpage
+\appendix
+```
+
+# Appendix: R Environment
+
+```{r r_environ}
+sessionInfo()
+```
