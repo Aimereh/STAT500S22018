@@ -1,4 +1,4 @@
-# STAT500S22018
+# STAT500 S2 2018
 Auckland University of Technology (AUT) - STAT500 Applied Statistics S2 2018
 
 * AUT STAT500 Applied Statistics S2 2018 Assignment
